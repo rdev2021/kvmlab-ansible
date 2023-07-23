@@ -1,0 +1,26 @@
+---
+# tasks file for reset
+- name: Conditionally delete base image - {{ base_image_name }}
+  file:
+    path: "{{ base_image_storage_path }}/{{ base_image_name }}"
+    state: absent
+  when: cleanup_image | bool
+
+- name: Shutdown vm - {{ vm_name }}
+  community.libvirt.virt:
+    name: "{{ vm_name }}"
+    state: shutdown
+  register: vm_shutdown_results
+  until: "vm_shutdown_results is success"
+  retries: 15
+  delay: 2
+
+- name: Destroy vm - {{ vm_name }}
+  community.libvirt.virt:
+    command: undefine
+    name: "{{ vm_name }}"
+
+- name: Delete qcow2 disk - {{ vm_name }}
+  file:
+    state: absent
+    path: "{{ libvirt_pool_dir }}/{{ vm_name }}.qcow2"

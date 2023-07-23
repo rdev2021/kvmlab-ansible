@@ -1,0 +1,29 @@
+---
+- name: Deploys VM based on cloud image
+  hosts: localhost
+  gather_facts: yes
+  become: yes
+  vars:
+    cleanup: false
+    base_image_storage_path: "/rdev/isos"
+
+  tasks:
+    - name: Control plane role
+      include_role:
+        name: reset
+      vars:
+        vm_name: "{{ item }}"
+        cleanup_image: "{{ cleanup }}"
+      loop:
+        - k3sm1
+
+    - name: Worker role
+      include_role:
+        name: reset
+      vars:
+        vm_name: "{{ item }}"
+        cleanup_image: "{{ cleanup }}"
+      loop:
+        - k3sw1
+        - k3sw2
+        - k3sw3

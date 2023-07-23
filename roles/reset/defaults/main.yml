@@ -1,0 +1,4 @@
+---
+libvirt_pool_dir: "/var/lib/libvirt/images"
+cleanup_image: false
+base_image_storage_path: /tmp

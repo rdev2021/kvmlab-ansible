@@ -1,0 +1,37 @@
+---
+- name: Deploys VMs based on cloud image
+  hosts: localhost
+  gather_facts: yes
+  become: yes
+  vars:
+    vcpus: 1
+    ram_mb: 1024
+    cleanup: false    
+
+  tasks:
+  
+    - name: Tasks to create control plane nodes
+      include_role:
+        name: provisions
+      vars:
+        vm_name: "{{ item }}"
+        vm_vcpus: "{{ vcpus }}"
+        vm_ram_mb: "{{ ram_mb }}"
+        cleanup_image: "{{ cleanup }}"
+        ssh_key: "{{ ssh_pub_key }}"
+      loop:
+        - k3sm1
+
+    - name: Tasks to create Worker nodes
+      include_role:
+        name: provisions
+      vars:
+        vm_name: "{{ item }}"
+        vm_vcpus: "{{ vcpus }}"
+        vm_ram_mb: "{{ ram_mb }}"
+        cleanup_image: "{{ cleanup }}"
+        ssh_key: "{{ ssh_pub_key }}"
+      loop:
+        - k3sw1
+        - k3sw2
+        - k3sw3
