@@ -1,0 +1,33 @@
+---
+# tasks file for kvm_provision
+- name: Ensure requirements in place
+  package:
+    name:
+      - guestfs-tools
+      - python3-libvirt
+      - virt-manager
+      - qemu-kvm
+      - libvirt-daemon-config-network
+      - libvirt-daemon-kvm
+      - virt-install
+      - virt-viewer
+    state: present
+  become: true
+
+- name: Start libvirtd
+  service:
+    name: libvirtd
+    state: started
+    enabled: true
+
+- name: Start virtqemud
+  service:
+    name: virtqemud
+    state: started
+    enabled: true
+
+- name: Download base image
+  get_url:
+    url: "{{ base_image_url }}"
+    dest: "{{ base_image_storage_path }}/{{ base_image_name }}"
+    checksum: "sha256:{{ base_image_sha }}"

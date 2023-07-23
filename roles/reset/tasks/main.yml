@@ -6,6 +6,12 @@
     state: absent
   when: cleanup_image | bool
 
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: no
+
 - name: Shutdown vm - {{ vm_name }}
   community.libvirt.virt:
     name: "{{ vm_name }}"
@@ -14,11 +20,13 @@
   until: "vm_shutdown_results is success"
   retries: 15
   delay: 2
+  when: "vm_name not in existing_vms.list_vms"
 
 - name: Destroy vm - {{ vm_name }}
   community.libvirt.virt:
     command: undefine
     name: "{{ vm_name }}"
+  when: "vm_name not in existing_vms.list_vms"
 
 - name: Delete qcow2 disk - {{ vm_name }}
   file:

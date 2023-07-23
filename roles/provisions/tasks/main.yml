@@ -1,26 +1,12 @@
 ---
 # tasks file for kvm_provision
-- name: Ensure requirements in place
-  package:
-    name:
-      - guestfs-tools
-      - python3-libvirt
-    state: present
-  become: true
-
 - name: Get VMs list
   community.libvirt.virt:
     command: list_vms
   register: existing_vms
   changed_when: no
 
-- name: Download base image
-  get_url:
-    url: "{{ base_image_url }}"
-    dest: "{{ base_image_storage_path }}/{{ base_image_name }}"
-    checksum: "sha256:{{ base_image_sha }}"
-
-- name: Copy base image to libvirt directory
+- name: Copy base image to libvirt directory - {{ vm_name }}
   copy:
     dest: "{{ libvirt_pool_dir }}/{{ vm_name }}.qcow2"
     src: "{{ base_image_storage_path }}/{{ base_image_name }}"
@@ -28,6 +14,7 @@
     remote_src: true
     mode: 0660
   register: copy_results
+  when: "vm_name not in existing_vms.list_vms"
 
 - name: Configure the image - {{ vm_name }}
   command: |
@@ -52,9 +39,4 @@
   until: "vm_start_results is success"
   retries: 15
   delay: 2
-
-- name: Conditionally delete base image - {{ base_image_name }}
-  file:
-    path: "{{ base_image_storage_path }}/{{ base_image_name }}"
-    state: absent
-  when: cleanup_image | bool
+  

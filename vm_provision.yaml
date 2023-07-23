@@ -6,10 +6,21 @@
   vars:
     vcpus: 1
     ram_mb: 1024
-    cleanup: false    
+    cleanup: false
+    image_version: 38
+    image_name: Fedora-Cloud-Base-38-1.6.x86_64.qcow2
+    image_url: https://download.fedoraproject.org/pub/fedora/linux/releases/{{ image_version }}/Cloud/x86_64/images/{{ image_name }}
+    image_sha: d334670401ff3d5b4129fcc662cf64f5a6e568228af59076cc449a4945318482
 
   tasks:
-  
+    - name: Prepare the server
+      include_role:
+        name: prereq
+      vars:
+        base_image_name: "{{ image_name }}"
+        base_image_url: "{{ image_url }}"
+        base_image_sha: "{{ image_sha }}"
+
     - name: Tasks to create control plane nodes
       include_role:
         name: provisions
@@ -33,5 +44,5 @@
         ssh_key: "{{ ssh_pub_key }}"
       loop:
         - k3sw1
-        - k3sw2
-        - k3sw3
+        # - k3sw2
+        # - k3sw3
