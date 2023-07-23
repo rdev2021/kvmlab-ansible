@@ -20,13 +20,13 @@
   until: "vm_shutdown_results is success"
   retries: 15
   delay: 2
-  when: "vm_name not in existing_vms.list_vms"
+  when: "vm_name in existing_vms.list_vms"
 
 - name: Destroy vm - {{ vm_name }}
   community.libvirt.virt:
     command: undefine
     name: "{{ vm_name }}"
-  when: "vm_name not in existing_vms.list_vms"
+  when: "vm_name in existing_vms.list_vms"
 
 - name: Delete qcow2 disk - {{ vm_name }}
   file:
